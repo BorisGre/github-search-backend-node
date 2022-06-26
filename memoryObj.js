@@ -1,4 +1,4 @@
-var memoryObj = () => {
+var memoryObj = (settings) => {
     var req = Symbol("req")
  
    return {
@@ -14,9 +14,10 @@ var memoryObj = () => {
      get(request){    
         var preAns = this.cachedReq[request] || {}
         //console.log(`preAns`, preAns)
+        var cacheInvalidationDiffTime = settings.cacheInvalidationDiffTime*100//convert second to ms
         var status = 'ok'
             status = Object.keys(preAns).length < 1 ? 'noEntry' : status
-            status = ((new Date).getTime() - preAns.date >= 600 ) ? 'entryExpired': status
+            status = ((new Date).getTime() - preAns.date >= cacheInvalidationDiffTime) ? 'entryExpired': status
             var out =  {status, data: preAns}  
              console.log(`MEMORY GET`, out)                                              
         return out                                                         

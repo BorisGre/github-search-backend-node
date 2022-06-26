@@ -1,11 +1,12 @@
 var settings = {
     port: 8000,
-    cacheRecordLifeTime: 600, //seconds
+    cacheRecordLifeTime: 120, //seconds
+    perPage: 25,
     apiLink: {
         port: 443,
         apiKey: '',
-        hostname: 'jsonplaceholder.typicode.com',
-        path: '/posts'
+        hostname: 'api.github.com',
+        path: '/'
     }
 }
 module.exports = settings

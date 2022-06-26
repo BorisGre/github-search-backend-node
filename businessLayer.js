@@ -8,8 +8,9 @@ businessLayer.pipe = async (memoryObj, searchRequest, https, settings) => {
     var inMemoryData = businessLayer.getDataFromInMemoryObj(memoryObj, searchRequest, settings)
     outData = inMemoryData.data
       // console.log(`inmemoryQQQ`, inMemoryData)
+      console.log(`Inmemory Date`, inMemoryData['data']['date'], (new Date).getTime(), (new Date).getTime() - inMemoryData['data']['date'] )
     if(inMemoryData.status === 'noEntry' || inMemoryData.status === 'entryExpired') {
-        console.log(`call APi`)//, inMemoryData)
+        console.log(`call APi`)//, inMemoryData.status)//, inMemoryData)
         var APIData = await businessLayer.getDataFromGithub(searchRequest, https, settings)
 
        // console.log(`api`, APIData)
@@ -28,18 +29,22 @@ businessLayer.getDataFromInMemoryObj = (memoryObj, searchRequest, settings) => {
     return data
 }    
 businessLayer.getDataFromGithub = async (searchRequest, https, settings) => {
-  console.log(`get from api`, searchRequest)
+  console.log(`get from api`, searchRequest, page = 1)
   //https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita
     const options = {
-        hostname: `thecocktaildb.com`,//settings.apiLink.hostname,
+        hostname: settings.apiLink.hostname,
         port: settings.apiLink.port,
-        path: `/api/json/v1/1/search.php?s=${searchRequest}`,//`${settings.apiLink.path}/${searchRequest}`,
+        path: `/search/repositories?q=${searchRequest}&sort=best_matched&order=desc&page=${page}&per_page=${settings.per_page}`,
+        //path: `/api/json/v1/1/search.php?s=${searchRequest}`,//`${settings.apiLink.path}/${searchRequest}`,
         method: 'GET',
-        /*headers: {
+        headers: {
           'Content-Type': 'application/json',
-          'Content-Length': data.length
-        },*/
+          'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1521.3 Safari/537.36'
+          //'Content-Length': data.length
+        },
       };
+
+      console.log(`PATH \n`, options.hostname, options.path)
 
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -51,7 +56,6 @@ businessLayer.getDataFromGithub = async (searchRequest, https, settings) => {
           });
     
           res.on('end', () => {
-            //console.log(`end of fetching`, responseBody)
             resolve({status: 'ok', data: responseBody});
           });
         });
@@ -66,7 +70,6 @@ businessLayer.getDataFromGithub = async (searchRequest, https, settings) => {
 }
 
 businessLayer.writeDataToInMemoryObj = (memoryObj, searchRequest, data) => {
-   /// console.log(`search req write`, searchRequest)
     memoryObj.put({[searchRequest]: {date: (new Date).getTime(), answer: data}})
 }
 
